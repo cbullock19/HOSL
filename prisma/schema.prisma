@@ -1,0 +1,210 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  VOLUNTEER
+}
+
+enum TaskType {
+  PICKUP
+  DELIVERY
+}
+
+enum TaskStatus {
+  OPEN
+  FILLED
+  DONE
+}
+
+enum SignupStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      UserRole @default(VOLUNTEER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  volunteerProfile VolunteerProfile?
+  signups         Signup[]
+  foodLogs        FoodLog[]
+  announcements   Announcement[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+model VolunteerProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  firstName         String
+  lastName          String
+  phone             String?
+  smsOptIn          Boolean  @default(false)
+  preferredDays     String[] // Array of day names like ["Monday", "Tuesday"]
+  vehicleCapacity   String?
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("volunteer_profiles")
+}
+
+model Source {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  contact     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tasks    Task[]
+  foodLogs FoodLog[]
+
+  @@map("sources")
+}
+
+model Recipient {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  contact     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tasks    Task[]
+  foodLogs FoodLog[]
+
+  @@map("recipients")
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  title        String
+  date         DateTime
+  startTime    String     // Format: "09:00"
+  endTime      String     // Format: "10:00"
+  type         TaskType
+  sourceId     String?
+  recipientId  String?
+  capacity     Int        @default(1)
+  status       TaskStatus @default(OPEN)
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  source      Source?    @relation(fields: [sourceId], references: [id])
+  recipient   Recipient? @relation(fields: [recipientId], references: [id])
+  signups     Signup[]
+  foodLogs    FoodLog[]
+
+  @@map("tasks")
+}
+
+model GuestVolunteer {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String?
+  claimedAt DateTime? // When they create full account
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  signups Signup[]
+
+  @@map("guest_volunteers")
+}
+
+model Signup {
+  id         String        @id @default(cuid())
+  taskId     String
+  userId     String?       // Optional - for guest volunteers
+  guestId   String?        // Optional - for guest volunteers
+  status     SignupStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  // Relations
+  task  Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user  User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guest GuestVolunteer? @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, userId, guestId])
+  @@map("signups")
+}
+
+model FoodLog {
+  id            String   @id @default(cuid())
+  taskId        String
+  pounds        Decimal  @db.Decimal(10, 2)
+  items         String?
+  sourceId      String?
+  recipientId   String?
+  completedBy   String
+  completedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  source    Source?   @relation(fields: [sourceId], references: [id])
+  recipient Recipient? @relation(fields: [recipientId], references: [id])
+  user      User      @relation(fields: [completedBy], references: [id], onDelete: Cascade)
+
+  @@map("food_logs")
+}
+
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  message     String
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("announcements")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?  // Optional - for system actions
+  action    String
+  details   Json?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
