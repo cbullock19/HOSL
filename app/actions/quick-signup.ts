@@ -38,13 +38,13 @@ export async function quickSignup(data: z.infer<typeof quickSignupSchema>) {
       throw new Error('Task is not available for signup')
     }
 
-    const claimedSpots = task.signups.filter(s => s.status !== 'CANCELLED').length
+    const claimedSpots = task.signups.filter((s: any) => s.status !== 'CANCELLED').length
     if (claimedSpots >= task.capacity) {
       throw new Error('Task is full')
     }
 
     // Check if this person is already signed up (by email)
-    const existingSignup = task.signups.find(s => 
+    const existingSignup = task.signups.find((s: any) => 
       s.guestId && s.guest?.email === validatedData.email || 
       s.userId && s.user?.email === validatedData.email
     )
