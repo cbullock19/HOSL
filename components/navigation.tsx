@@ -27,27 +27,28 @@ export function Navigation() {
   const isAdminPage = pathname?.startsWith('/admin')
 
   return (
-    <nav className="bg-white shadow-sm border-b">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-full"></div>
-            <span className="text-xl font-bold text-gray-900">{getOrgDisplayName()}</span>
+          <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
+            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-blue-600 rounded-full flex-shrink-0"></div>
+            <span className="text-lg lg:text-xl font-bold text-gray-900 hidden sm:block">{getOrgDisplayName()}</span>
+            <span className="text-base font-bold text-gray-900 sm:hidden">HOSL</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Desktop Navigation - Hidden on mobile, visible on lg+ */}
+          <div className="hidden lg:flex items-center space-x-1">
             {navigation.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -62,10 +63,10 @@ export function Navigation() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -75,15 +76,50 @@ export function Navigation() {
             })}
           </div>
 
-          {/* Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Tablet Navigation - Visible on md, hidden on mobile and lg+ */}
+          <div className="hidden md:flex lg:hidden items-center space-x-2">
+            {navigation.slice(0, 3).map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span className="hidden sm:block">{item.name}</span>
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* Auth Buttons - Desktop */}
+          <div className="hidden lg:flex items-center space-x-3">
             <Link href="/login">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="px-4 py-2">
                 Sign In
               </Button>
             </Link>
             <Link href="/dashboard">
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 px-4 py-2">
+                Dashboard
+              </Button>
+            </Link>
+          </div>
+
+          {/* Auth Buttons - Tablet */}
+          <div className="hidden md:flex lg:hidden items-center space-x-2">
+            <Link href="/login">
+              <Button variant="outline" size="sm" className="px-3 py-2 text-sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 px-3 py-2 text-sm">
                 Dashboard
               </Button>
             </Link>
@@ -95,11 +131,12 @@ export function Navigation() {
               variant="ghost"
               size="sm"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2"
             >
               {isMobileMenuOpen ? (
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               ) : (
-                <Menu className="w-5 h-5" />
+                <Menu className="w-6 h-6" />
               )}
             </Button>
           </div>
@@ -107,55 +144,64 @@ export function Navigation() {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t">
-            <div className="space-y-2">
+          <div className="md:hidden py-4 border-t bg-white">
+            <div className="space-y-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <item.icon className="w-5 h-5" />
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
                     <span>{item.name}</span>
                   </Link>
                 )
               })}
               
-              {isAdminPage && adminNavigation.map((item) => {
-                const isActive = pathname === item.href
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.name}</span>
-                  </Link>
-                )
-              })}
+              {isAdminPage && (
+                <>
+                  <div className="pt-2 pb-1">
+                    <div className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Admin
+                    </div>
+                  </div>
+                  {adminNavigation.map((item) => {
+                    const isActive = pathname === item.href
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                          isActive
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <span>{item.name}</span>
+                      </Link>
+                    )
+                  })}
+                </>
+              )}
             </div>
             
-            <div className="pt-4 border-t mt-4 space-y-2">
+            <div className="pt-4 border-t mt-4 space-y-3 px-4">
               <Link href="/login" className="block">
-                <Button variant="outline" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full py-3" onClick={() => setIsMobileMenuOpen(false)}>
                   Sign In
                 </Button>
               </Link>
               <Link href="/dashboard" className="block">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 py-3" onClick={() => setIsMobileMenuOpen(false)}>
                   Dashboard
                 </Button>
               </Link>
