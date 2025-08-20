@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { prisma } from '@/lib/db'
+import { db as prisma } from '@/lib/db'
 import { hash } from 'bcryptjs'
 
 const createAccountSchema = z.object({

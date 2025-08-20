@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { prisma } from '@/lib/db'
+import { db as prisma } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
 
 const inviteAdminSchema = z.object({
