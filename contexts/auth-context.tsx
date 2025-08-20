@@ -11,6 +11,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string; message?: string }>
   signOut: () => Promise<void>
   signUp: (email: string, password: string, userData: { firstName: string; lastName: string; phone?: string }) => Promise<{ success: boolean; error?: string }>
+  clearSession: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -21,11 +22,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
+    // Get initial session and validate it
     const getInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
+      
+      // Validate the session by checking if the user still exists
+      if (session?.user) {
+        try {
+          // Try to get user info to validate the session
+          const { data: { user }, error } = await supabase.auth.getUser()
+          
+          if (error || !user) {
+            // Session is invalid, clear it
+            console.log('Invalid session detected, clearing...')
+            await supabase.auth.signOut()
+            setSession(null)
+            setUser(null)
+          } else {
+            // Session is valid
+            setSession(session)
+            setUser(user)
+          }
+        } catch (error) {
+          // Error validating session, clear it
+          console.log('Error validating session, clearing...')
+          await supabase.auth.signOut()
+          setSession(null)
+          setUser(null)
+        }
+      } else {
+        setSession(null)
+        setUser(null)
+      }
+      
       setLoading(false)
     }
 
@@ -34,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.email)
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
@@ -94,7 +124,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+      // Also clear any local state
+      setSession(null)
+      setUser(null)
+      console.log('User signed out successfully')
+    } catch (error) {
+      console.error('Error signing out:', error)
+      // Force clear local state even if Supabase fails
+      setSession(null)
+      setUser(null)
+    }
+  }
+
+  const clearSession = async () => {
+    try {
+      await supabase.auth.signOut()
+      setSession(null)
+      setUser(null)
+      console.log('Session cleared successfully')
+    } catch (error) {
+      console.error('Error clearing session:', error)
+      setSession(null)
+      setUser(null)
+    }
   }
 
   const value = {
@@ -103,7 +157,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     signIn,
     signOut,
-    signUp
+    signUp,
+    clearSession
   }
 
   return (

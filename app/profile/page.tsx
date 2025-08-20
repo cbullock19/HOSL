@@ -12,7 +12,7 @@ import { AuthGate } from '@/components/auth-gate'
 import { useAuth } from '@/contexts/auth-context'
 
 export default function ProfilePage() {
-  const { user: authUser, session } = useAuth()
+  const { user: authUser, session, clearSession } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
     firstName: '',
@@ -377,6 +377,32 @@ export default function ProfilePage() {
                     <span className="text-sm text-gray-600">Status</span>
                     <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Debug Section - Remove in production */}
+              <Card className="border-orange-200 bg-orange-50">
+                <CardHeader>
+                  <CardTitle className="text-lg text-orange-800">Debug Info</CardTitle>
+                  <CardDescription className="text-orange-700">
+                    For testing purposes only
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="text-xs text-orange-700">
+                    <p><strong>User ID:</strong> {authUser?.id || 'None'}</p>
+                    <p><strong>Email:</strong> {authUser?.email || 'None'}</p>
+                    <p><strong>Session:</strong> {session ? 'Active' : 'None'}</p>
+                    <p><strong>Created:</strong> {authUser?.created_at || 'None'}</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={clearSession}
+                    className="w-full text-orange-700 border-orange-300 hover:bg-orange-100"
+                  >
+                    Clear Session (Debug)
+                  </Button>
                 </CardContent>
               </Card>
             </div>
