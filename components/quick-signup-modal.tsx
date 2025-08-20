@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -188,9 +189,15 @@ export function QuickSignupModal({ task, isOpen, onClose, onSignup }: QuickSignu
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
-              <Button variant="link" className="p-0 h-auto text-blue-600">
+              <Link href="/login" className="text-blue-600 hover:underline font-medium">
                 Sign in here
-              </Button>
+              </Link>
+            </p>
+            <p className="text-sm text-gray-600 mt-2">
+              Want to track your progress?{' '}
+              <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+                Create an account
+              </Link>
             </p>
           </div>
         </CardContent>

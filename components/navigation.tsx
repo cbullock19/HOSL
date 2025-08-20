@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Opportunities', href: '/opportunities', icon: Calendar },
   { name: 'Dashboard', href: '/dashboard', icon: Users },
+  { name: 'Profile', href: '/profile', icon: Users },
   { name: 'How It Works', href: '/confirm', icon: Settings },
   { name: 'About', href: '/about', icon: BarChart3 },
   { name: 'Examples', href: '/examples', icon: BarChart3 },

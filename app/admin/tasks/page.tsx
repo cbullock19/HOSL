@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { PageHeader } from '@/components/page-header'
 import { AdminTasksManager } from '@/components/admin-tasks-manager'
+import { AdminInvite } from '@/components/admin-invite'
 
 export default function AdminTasksPage() {
   return (
@@ -11,9 +12,17 @@ export default function AdminTasksPage() {
       />
       
       <div className="container mx-auto px-4 py-6">
-        <Suspense fallback={<AdminTasksSkeleton />}>
-          <AdminTasksManager />
-        </Suspense>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Suspense fallback={<AdminTasksSkeleton />}>
+              <AdminTasksManager />
+            </Suspense>
+          </div>
+          
+          <div className="space-y-6">
+            <AdminInvite currentAdminId="admin-1" />
+          </div>
+        </div>
       </div>
     </div>
   )
