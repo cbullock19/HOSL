@@ -4,6 +4,8 @@ A production-ready volunteer scheduling and food logistics web application built
 
 ## 🎯 Features
 
+> **📋 See [CURRENT_SYSTEMS_ANALYSIS.md](./CURRENT_SYSTEMS_ANALYSIS.md) for detailed context on what St. Luke's currently uses and why we're building this unified platform.**
+
 - **Simple Task Management**: One-tap signup for pick up and delivery tasks
 - **Mobile-First Design**: Optimized for phone use with large touch targets
 - **Accessibility Focused**: Large text mode, high contrast, and clear navigation

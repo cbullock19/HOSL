@@ -13,6 +13,11 @@ const mockMonthlyStats = {
   totalTasks: 48,
   activeVolunteers: 12,
   completionRate: 94.2,
+  totalMiles: 89,
+  totalHours: 72,
+  foodWastePrevented: 1247.5, // Same as pounds delivered
+  familiesServed: 156, // Estimated based on pounds
+  costSavings: 2495, // $2 per pound estimated value
 }
 
 const mockTopSources = [
@@ -158,6 +163,62 @@ export function AdminReports() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Business Impact Metrics - Critical for Church Board */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-green-600" />
+            Business Impact & Community Value
+          </CardTitle>
+          <p className="text-sm text-gray-600 font-normal">
+            Key metrics for quarterly/annual church board meetings and grant applications
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-green-50 rounded-lg border">
+              <div className="text-2xl font-bold text-green-600">${mockMonthlyStats.costSavings.toLocaleString()}</div>
+              <div className="text-sm text-gray-600">Cost Savings</div>
+              <div className="text-xs text-gray-500 mt-1">Food value prevented from waste</div>
+            </div>
+            
+            <div className="text-center p-4 bg-blue-50 rounded-lg border">
+              <div className="text-2xl font-bold text-blue-600">{mockMonthlyStats.familiesServed}</div>
+              <div className="text-sm text-gray-600">Families Served</div>
+              <div className="text-xs text-gray-500 mt-1">Estimated households impacted</div>
+            </div>
+            
+            <div className="text-center p-4 bg-purple-50 rounded-lg border">
+              <div className="text-2xl font-bold text-purple-600">{mockMonthlyStats.totalMiles}</div>
+              <div className="text-sm text-gray-600">Miles Driven</div>
+              <div className="text-xs text-gray-500 mt-1">Volunteer transportation</div>
+            </div>
+            
+            <div className="text-center p-4 bg-orange-50 rounded-lg border">
+              <div className="text-2xl font-bold text-orange-600">{mockMonthlyStats.totalHours}</div>
+              <div className="text-sm text-gray-600">Volunteer Hours</div>
+              <div className="text-xs text-gray-500 mt-1">Community service time</div>
+            </div>
+          </div>
+          
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-semibold text-gray-900 mb-2">Impact Summary for Church Board</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p><strong>Food Waste Prevention:</strong> {mockMonthlyStats.foodWastePrevented} pounds diverted from landfills</p>
+                <p><strong>Economic Value:</strong> ${mockMonthlyStats.costSavings.toLocaleString()} in food value saved</p>
+                <p><strong>Community Reach:</strong> {mockMonthlyStats.familiesServed} families served this month</p>
+              </div>
+              <div>
+                <p><strong>Volunteer Engagement:</strong> {mockMonthlyStats.activeVolunteers} active volunteers</p>
+                <p><strong>Efficiency:</strong> {mockMonthlyStats.completionRate}% task completion rate</p>
+                <p><strong>Scalability:</strong> {mockMonthlyStats.totalTasks} tasks completed successfully</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Top Sources */}
