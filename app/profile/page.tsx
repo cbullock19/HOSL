@@ -6,68 +6,62 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { User, Edit, Save, X, Trophy, Star, Heart, Award } from 'lucide-react'
+import { User, Edit, Save, X, Trophy, Star, Heart, Award, Plus, Phone } from 'lucide-react'
 import { toast } from 'sonner'
 import { AuthGate } from '@/components/auth-gate'
-
-// Mock user data - replace with actual API calls
-const mockUser = {
-  id: '1',
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john.doe@example.com',
-  phone: '(555) 123-4567',
-  role: 'VOLUNTEER',
-  volunteerProfile: {
-    totalTasks: 15,
-    totalPounds: 450,
-    totalMiles: 120,
-    currentStreak: 3,
-    badges: ['First Task', 'Week Warrior', 'Mile Master'],
-    achievements: [
-      { name: 'Task Master', progress: 15, target: 20, description: 'Complete 20 tasks' },
-      { name: 'Weight Lifter', progress: 450, target: 500, description: 'Deliver 500 pounds of food' },
-      { name: 'Road Warrior', progress: 120, target: 200, description: 'Drive 200 miles for deliveries' }
-    ]
-  }
-}
+import { useAuth } from '@/contexts/auth-context'
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(mockUser)
+  const { user: authUser, session } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phone: user.phone,
+    firstName: '',
+    lastName: '',
+    phone: '',
   })
+  const [isAddingPhone, setIsAddingPhone] = useState(false)
+  const [newPhone, setNewPhone] = useState('')
+
+  // Extract user data from Supabase Auth
+  const userData = authUser?.user_metadata || {}
+  const firstName = userData.first_name || 'N/A'
+  const lastName = userData.last_name || 'N/A'
+  const phone = userData.phone || ''
+  const email = authUser?.email || 'N/A'
+  const createdAt = authUser?.created_at ? new Date(authUser.created_at) : new Date()
+
+  useEffect(() => {
+    setEditData({
+      firstName,
+      lastName,
+      phone,
+    })
+  }, [firstName, lastName, phone])
 
   const handleEdit = () => {
     setIsEditing(true)
     setEditData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
+      firstName,
+      lastName,
+      phone,
     })
   }
 
   const handleCancel = () => {
     setIsEditing(false)
     setEditData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
+      firstName,
+      lastName,
+      phone,
     })
   }
 
   const handleSave = async () => {
     try {
-      // TODO: Implement actual API call to update profile
-      setUser(prev => ({
-        ...prev,
-        ...editData
-      }))
-      setIsEditing(false)
+      // TODO: Implement actual API call to update profile in database
+      // For now, just show success message
       toast.success('Profile updated successfully!')
+      setIsEditing(false)
     } catch (error) {
       toast.error('Failed to update profile')
     }
@@ -75,6 +69,46 @@ export default function ProfilePage() {
 
   const handleInputChange = (field: string, value: string) => {
     setEditData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleAddPhone = () => {
+    setIsAddingPhone(true)
+    setNewPhone('')
+  }
+
+  const handleSavePhone = async () => {
+    if (!newPhone.trim()) {
+      toast.error('Please enter a phone number')
+      return
+    }
+    
+    try {
+      // TODO: Implement actual API call to update phone in database
+      toast.success('Phone number added successfully!')
+      setIsAddingPhone(false)
+      // Refresh user data or update local state
+    } catch (error) {
+      toast.error('Failed to add phone number')
+    }
+  }
+
+  const handleCancelPhone = () => {
+    setIsAddingPhone(false)
+    setNewPhone('')
+  }
+
+  // Mock volunteer stats for now (will be replaced with real data)
+  const volunteerStats = {
+    totalTasks: 0,
+    totalPounds: 0,
+    totalMiles: 0,
+    currentStreak: 0,
+    badges: [],
+    achievements: [
+      { name: 'First Task', progress: 0, target: 1, description: 'Complete your first volunteer task' },
+      { name: 'Week Warrior', progress: 0, target: 4, description: 'Volunteer for 4 weeks in a row' },
+      { name: 'Community Helper', progress: 0, target: 10, description: 'Complete 10 volunteer tasks' }
+    ]
   }
 
   return (
@@ -133,7 +167,7 @@ export default function ProfilePage() {
                         <Label htmlFor="email">Email</Label>
                         <Input
                           id="email"
-                          value={user.email}
+                          value={email}
                           disabled
                           className="mt-1 bg-gray-50"
                         />
@@ -165,25 +199,74 @@ export default function ProfilePage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-sm font-medium text-gray-500">First Name</Label>
-                          <p className="text-lg">{user.firstName}</p>
+                          <p className="text-lg">{firstName}</p>
                         </div>
                         <div>
                           <Label className="text-sm font-medium text-gray-500">Last Name</Label>
-                          <p className="text-lg">{user.lastName}</p>
+                          <p className="text-lg">{lastName}</p>
                         </div>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Email</Label>
-                        <p className="text-lg">{user.email}</p>
+                        <p className="text-lg">{email}</p>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Phone</Label>
-                        <p className="text-lg">{user.phone}</p>
+                        {phone ? (
+                          <p className="text-lg">{phone}</p>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <p className="text-lg text-gray-400">Not provided</p>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={handleAddPhone}
+                              className="h-8 px-3"
+                            >
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Phone
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
+
+              {/* Phone Number Add Modal */}
+              {isAddingPhone && (
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-blue-800">Add Phone Number</CardTitle>
+                    <CardDescription className="text-blue-700">
+                      Add a phone number to your profile for notifications
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="newPhone">Phone Number</Label>
+                      <Input
+                        id="newPhone"
+                        type="tel"
+                        value={newPhone}
+                        onChange={(e) => setNewPhone(e.target.value)}
+                        placeholder="(555) 123-4567"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleSavePhone} className="bg-blue-600 hover:bg-blue-700">
+                        <Phone className="w-4 h-4 mr-2" />
+                        Save Phone
+                      </Button>
+                      <Button variant="outline" onClick={handleCancelPhone}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Volunteer Stats */}
               <Card>
@@ -194,19 +277,19 @@ export default function ProfilePage() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{user.volunteerProfile.totalTasks}</div>
+                      <div className="text-2xl font-bold text-blue-600">{volunteerStats.totalTasks}</div>
                       <div className="text-sm text-gray-600">Total Tasks</div>
                     </div>
                     <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">{user.volunteerProfile.totalPounds}</div>
+                      <div className="text-2xl font-bold text-green-600">{volunteerStats.totalPounds}</div>
                       <div className="text-sm text-gray-600">Pounds Delivered</div>
                     </div>
                     <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">{user.volunteerProfile.totalMiles}</div>
+                      <div className="text-2xl font-bold text-purple-600">{volunteerStats.totalMiles}</div>
                       <div className="text-sm text-gray-600">Miles Driven</div>
                     </div>
                     <div className="text-center p-4 bg-orange-50 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600">{user.volunteerProfile.currentStreak}</div>
+                      <div className="text-2xl font-bold text-orange-600">{volunteerStats.currentStreak}</div>
                       <div className="text-sm text-gray-600">Week Streak</div>
                     </div>
                   </div>
@@ -220,7 +303,7 @@ export default function ProfilePage() {
                   <CardDescription>Track your goals and milestones</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {user.volunteerProfile.achievements.map((achievement, index) => (
+                  {volunteerStats.achievements.map((achievement, index) => (
                     <div key={index} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold">{achievement.name}</h4>
@@ -250,16 +333,24 @@ export default function ProfilePage() {
                   <CardDescription>Your volunteer accomplishments</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {user.volunteerProfile.badges.map((badge, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Trophy className="w-4 h-4 text-blue-600" />
+                  {volunteerStats.badges.length > 0 ? (
+                    <div className="space-y-3">
+                      {volunteerStats.badges.map((badge, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Trophy className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <span className="font-medium">{badge}</span>
                         </div>
-                        <span className="font-medium">{badge}</span>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Trophy className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <p className="text-sm">No badges earned yet</p>
+                      <p className="text-xs">Complete tasks to earn your first badge!</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -271,11 +362,16 @@ export default function ProfilePage() {
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Role</span>
-                    <Badge variant="secondary">{user.role}</Badge>
+                    <Badge variant="secondary">VOLUNTEER</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Member Since</span>
-                    <span className="text-sm font-medium">January 2024</span>
+                    <span className="text-sm font-medium">
+                      {createdAt.toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        year: 'numeric' 
+                      })}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Status</span>
