@@ -41,11 +41,17 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
     const adminUser = await prisma.user.create({
       data: {
         email: validatedData.email,
-        firstName: validatedData.firstName,
-        lastName: validatedData.lastName,
         hashedPassword,
         role: 'ADMIN',
-        isActive: true,
+        volunteerProfile: {
+          create: {
+            firstName: validatedData.firstName,
+            lastName: validatedData.lastName,
+          }
+        }
+      },
+      include: {
+        volunteerProfile: true
       }
     })
 
