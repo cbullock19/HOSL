@@ -24,7 +24,8 @@ export function Navigation() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const isAdminPage = pathname?.startsWith('/admin')
-  const { isAuthenticated, isLoading } = useAuth()
+  const { user, loading } = useAuth()
+  const isAuthenticated = !!user
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
