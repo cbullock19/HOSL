@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Mail, ArrowLeft, AlertCircle } from 'lucide-react'
-import { sendMagicLink } from '@/app/actions/send-magic-link'
+import { sendMagicLinkSupabase } from '@/app/actions/send-magic-link-supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -21,7 +21,7 @@ export default function LoginPage() {
     setError('')
     
     try {
-      const result = await sendMagicLink({ email })
+      const result = await sendMagicLinkSupabase({ email })
       
       if (result.success) {
         setIsSubmitted(true)
