@@ -17,7 +17,7 @@ export function AuthGate({ children, title, description, requireAuth = true }: A
   const { user, loading } = useAuth()
   const isAuthenticated = !!user
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
