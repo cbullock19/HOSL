@@ -17,8 +17,21 @@ export async function sendMagicLinkSupabase(data: z.infer<typeof sendMagicLinkSc
   try {
     const validatedData = sendMagicLinkSchema.parse(data)
 
-    // Use Supabase Auth to send magic link
-    const { data: authData, error } = await supabase.auth.admin.generateLink({
+    // First, check if user exists in our database
+    const { data: userData, error: userError } = await supabase
+      .from('User')
+      .select('id, email')
+      .eq('email', validatedData.email)
+      .single()
+
+    if (userError || !userData) {
+      // User doesn't exist - don't send magic link
+      // Return generic message for security (don't reveal if user exists)
+      return { success: true, message: 'If an account exists, a magic link has been sent' }
+    }
+
+    // User exists, now send magic link via Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email: validatedData.email,
       options: {
@@ -26,14 +39,12 @@ export async function sendMagicLinkSupabase(data: z.infer<typeof sendMagicLinkSc
       }
     })
 
-    if (error) {
-      console.error('Supabase auth error:', error)
-      
-      // Don't reveal if user exists or not for security
-      return { success: true, message: 'If an account exists, a magic link has been sent' }
+    if (authError) {
+      console.error('Supabase auth error:', authError)
+      return { success: false, error: 'Failed to send magic link' }
     }
 
-    // The magic link is automatically sent by Supabase
+    // Magic link sent successfully
     return { success: true, message: 'Magic link sent successfully' }
   } catch (error) {
     console.error('Failed to send magic link:', error)
