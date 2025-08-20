@@ -32,10 +32,12 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16 lg:h-18">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
-            {/* Logo placeholder - replace with your St. Luke logo */}
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-blue-600 rounded-full flex-shrink-0 flex items-center justify-center">
-              <span className="text-white text-xs lg:text-sm font-bold">SL</span>
-            </div>
+            {/* St. Luke Logo */}
+            <img 
+              src="/st-luke-logo.webp" 
+              alt="St. Luke Logo" 
+              className="w-8 h-8 lg:w-10 lg:h-10 object-contain flex-shrink-0"
+            />
             <span className="text-base lg:text-lg font-bold text-gray-900 hidden sm:block">{getOrgDisplayName()}</span>
             <span className="text-sm font-bold text-gray-900 sm:hidden">HOSL</span>
           </Link>
