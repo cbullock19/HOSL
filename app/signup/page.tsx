@@ -101,15 +101,46 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-4">
             <UserPlus className="w-8 h-8 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl">Create Your Account</CardTitle>
+          <CardTitle className="text-2xl">Create Your Free Account</CardTitle>
           <CardDescription className="text-lg">
-            Track your volunteer progress and manage your profile
+            Unlock your volunteer journey and track your community impact
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Benefits Section */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-100">
+            <h3 className="font-semibold text-green-900 mb-3 text-center">🎯 What You'll Get</h3>
+            <div className="grid grid-cols-1 gap-3 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-xs">✓</span>
+                </div>
+                <span className="text-green-800">Track all your volunteer hours and impact</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-xs">✓</span>
+                </div>
+                <span className="text-green-800">Earn badges and achievements</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-xs">✓</span>
+                </div>
+                <span className="text-green-800">Get personalized task recommendations</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-xs">✓</span>
+                </div>
+                <span className="text-green-800">Manage your schedule and preferences</span>
+              </div>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>

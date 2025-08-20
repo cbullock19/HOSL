@@ -186,19 +186,26 @@ export function QuickSignupModal({ task, isOpen, onClose, onSignup }: QuickSignu
             </div>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link href="/login" className="text-blue-600 hover:underline font-medium">
-                Sign in here
-              </Link>
-            </p>
-            <p className="text-sm text-gray-600 mt-2">
-              Want to track your progress?{' '}
-              <Link href="/signup" className="text-blue-600 hover:underline font-medium">
-                Create an account
-              </Link>
-            </p>
+          {/* Account Benefits Section */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+            <div className="text-center">
+              <h4 className="font-semibold text-blue-900 mb-2">✨ Want to track your impact?</h4>
+              <p className="text-sm text-blue-800 mb-3">
+                Create a free account to see your volunteer history, earn badges, and get personalized opportunities
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                <Link href="/signup">
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Create Free Account
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="sm" variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+                    Already have an account?
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

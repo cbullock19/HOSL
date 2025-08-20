@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { OpportunitiesList } from '@/components/opportunities-list'
 import { PageHeader } from '@/components/page-header'
 import { FilterBar } from '@/components/filter-bar'
+import { GuestVsAccount } from '@/components/guest-vs-account'
 import { getOrgDisplayName } from '@/lib/org'
 
 export default function OpportunitiesPage() {
@@ -13,13 +14,29 @@ export default function OpportunitiesPage() {
       />
       
       <div className="container mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <p className="text-lg text-gray-700 text-center">
-            Welcome to {getOrgDisplayName()} volunteer sign ups. Choose a task below to help move food from local stores to families in need.
-          </p>
+        {/* Guest User Banner */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-blue-100 p-6 mb-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">👋 Welcome to {getOrgDisplayName()}!</h3>
+            <p className="text-blue-800 mb-4">
+              You can sign up for tasks instantly without an account, or create a free profile to track your impact.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="inline-flex items-center gap-2 text-sm text-blue-700 bg-blue-100 px-3 py-1 rounded-full">
+                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                Quick signup - No account needed
+              </div>
+              <div className="inline-flex items-center gap-2 text-sm text-blue-700 bg-blue-100 px-3 py-1 rounded-full">
+                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                Free account - Track your progress
+              </div>
+            </div>
+          </div>
         </div>
         
         <FilterBar />
+        
+        <GuestVsAccount />
         
         <Suspense fallback={<OpportunitiesSkeleton />}>
           <OpportunitiesList />

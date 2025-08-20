@@ -160,7 +160,7 @@ export function OpportunitiesList() {
               <Button
                 onClick={() => handleClaim(task)}
                 disabled={task.capacity === task.claimed}
-                className={`min-w-[120px] ${
+                className={`min-w-[140px] ${
                   isClaimed(task.id)
                     ? 'bg-green-600 hover:bg-green-700'
                     : 'bg-blue-600 hover:bg-blue-700'
@@ -169,10 +169,13 @@ export function OpportunitiesList() {
                 {isClaimed(task.id) ? (
                   <>
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    I can take this
+                    Signed Up!
                   </>
                 ) : (
-                  'I can take this'
+                  <>
+                    <Package className="w-4 h-4 mr-2" />
+                    Quick Signup
+                  </>
                 )}
               </Button>
             </div>
