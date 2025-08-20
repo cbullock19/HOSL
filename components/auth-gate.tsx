@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useAuth } from '@/contexts/auth-context'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,27 +14,8 @@ interface AuthGateProps {
 }
 
 export function AuthGate({ children, title, description, requireAuth = true }: AuthGateProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // TODO: Replace with actual authentication check
-    // For now, simulate checking auth status
-    const checkAuth = async () => {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // TODO: Replace with actual auth check
-      // const user = await getCurrentUser()
-      // setIsAuthenticated(!!user)
-      
-      // For demo purposes, always show as not authenticated
-      setIsAuthenticated(false)
-      setIsLoading(false)
-    }
-
-    checkAuth()
-  }, [])
+  const { user, loading } = useAuth()
+  const isAuthenticated = !!user
 
   if (isLoading) {
     return (

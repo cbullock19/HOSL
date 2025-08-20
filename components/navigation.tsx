@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Home, Calendar, Users, BarChart3, Settings, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { getOrgDisplayName } from '@/lib/org'
-import { useAuth } from '@/hooks/use-auth'
+import { useAuth } from '@/contexts/auth-context'
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },

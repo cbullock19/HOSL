@@ -6,14 +6,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Mail, ArrowLeft, AlertCircle } from 'lucide-react'
-import { sendMagicLinkSupabase } from '@/app/actions/send-magic-link-supabase'
+import { Mail, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const { signIn } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,7 +22,7 @@ export default function LoginPage() {
     setError('')
     
     try {
-      const result = await sendMagicLinkSupabase({ email })
+      const result = await signIn(email)
       
       if (result.success) {
         setIsSubmitted(true)
@@ -43,14 +44,14 @@ export default function LoginPage() {
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-8 h-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl">Check Your Email</CardTitle>
+            <CardTitle className="text-2xl">Magic Link Sent!</CardTitle>
             <CardDescription className="text-lg">
-              We've sent a magic link to <strong>{email}</strong>
+              Check your email for a sign-in link
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-gray-600">
-              Click the link in your email to sign in to your account. The link will expire in 1 hour.
+              Click the link in your email to sign in to your account. The link will expire in 24 hours.
             </p>
             <Button
               variant="outline"
