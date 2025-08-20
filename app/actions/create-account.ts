@@ -44,13 +44,9 @@ export async function createAccount(data: z.infer<typeof createAccountSchema>) {
         role: 'VOLUNTEER',
         volunteerProfile: {
           create: {
-            // If guest volunteer exists, migrate their data
-            totalTasks: guestVolunteer?.totalTasks || 0,
-            totalPounds: guestVolunteer?.totalPounds || 0,
-            totalMiles: guestVolunteer?.totalMiles || 0,
-            currentStreak: guestVolunteer?.currentStreak || 0,
-            badges: guestVolunteer?.badges || [],
-            achievements: guestVolunteer?.achievements || [],
+            firstName: validatedData.firstName,
+            lastName: validatedData.lastName,
+            phone: validatedData.phone,
           }
         }
       },
