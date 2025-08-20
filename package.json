@@ -15,6 +15,8 @@
     "db:studio": "prisma studio",
     "db:setup-admin": "tsx scripts/setup-admin.ts",
     "db:setup-first-admin": "tsx scripts/setup-first-admin.ts",
+    "db:upgrade-to-admin": "tsx scripts/upgrade-admin.ts",
+    "db:manage-roles": "tsx scripts/manage-user-role.ts",
     "email:dev": "email dev --port 3001"
   },
   "dependencies": {
