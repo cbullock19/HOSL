@@ -12,7 +12,7 @@ import { AuthGate } from '@/components/auth-gate'
 import { useAuth } from '@/contexts/auth-context'
 
 export default function ProfilePage() {
-  const { user: authUser, session, clearSession } = useAuth()
+  const { user: authUser, session, clearSession, userRole, isAdmin } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
     firstName: '',
@@ -362,7 +362,12 @@ export default function ProfilePage() {
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Role</span>
-                    <Badge variant="secondary">VOLUNTEER</Badge>
+                    <Badge 
+                      variant={isAdmin ? "default" : "secondary"}
+                      className={isAdmin ? "bg-blue-100 text-blue-800" : ""}
+                    >
+                      {userRole || 'VOLUNTEER'}
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Member Since</span>
@@ -392,6 +397,7 @@ export default function ProfilePage() {
                   <div className="text-xs text-orange-700">
                     <p><strong>User ID:</strong> {authUser?.id || 'None'}</p>
                     <p><strong>Email:</strong> {authUser?.email || 'None'}</p>
+                    <p><strong>Role:</strong> {userRole || 'None'} {isAdmin && '(Admin)'}</p>
                     <p><strong>Session:</strong> {session ? 'Active' : 'None'}</p>
                     <p><strong>Created:</strong> {authUser?.created_at || 'None'}</p>
                   </div>
