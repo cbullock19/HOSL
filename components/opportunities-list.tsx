@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 // Mock data - replace with actual API calls
 const mockTasks = [
   {
-    id: '1',
+    id: 'clh1234567890abcdef',
     title: 'Morning Food Pick up',
     date: new Date('2024-01-15'),
     startTime: '09:00',
@@ -26,7 +26,7 @@ const mockTasks = [
     status: 'OPEN' as const,
   },
   {
-    id: '2',
+    id: 'clh1234567890abcdeg',
     title: 'Food Delivery to Pantry',
     date: new Date('2024-01-15'),
     startTime: '14:00',
@@ -39,20 +39,20 @@ const mockTasks = [
     status: 'OPEN' as const,
   },
   {
-    id: '3',
+    id: 'clh1234567890abcdeh',
     title: 'Afternoon Pick up',
     date: new Date('2024-01-16'),
     startTime: '15:00',
     endTime: '16:00',
     type: 'PICKUP' as const,
     source: 'Stop & Shop – Mansfield',
-    address: '789 Pine St, Mansfield, NJ',
+    address: '789 Pine St, Long Valley, NJ',
     capacity: 1,
     claimed: 0,
     status: 'OPEN' as const,
   },
   {
-    id: '4',
+    id: 'clh1234567890abcdei',
     title: 'Evening Delivery',
     date: new Date('2024-01-16'),
     startTime: '18:00',

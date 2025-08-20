@@ -9,7 +9,7 @@ const quickSignupSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Valid email is required'),
   phone: z.string().optional(),
-  taskId: z.string().cuid('Valid task ID is required'),
+  taskId: z.string().min(1, 'Valid task ID is required'),
 })
 
 export async function quickSignup(data: z.infer<typeof quickSignupSchema>) {
