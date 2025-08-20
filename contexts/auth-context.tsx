@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             last_name: userData.lastName,
             phone: userData.phone,
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://hosl.vercel.app'}/auth/callback`
         }
       })
 
