@@ -37,9 +37,6 @@ export async function createAccount(data: z.infer<typeof createAccountSchema>) {
     const user = await prisma.user.create({
       data: {
         email: validatedData.email,
-        firstName: validatedData.firstName,
-        lastName: validatedData.lastName,
-        phone: validatedData.phone,
         hashedPassword,
         role: 'VOLUNTEER',
         volunteerProfile: {
