@@ -26,7 +26,7 @@ export async function createAccount(data: z.infer<typeof createAccountSchema>) {
     }
 
     // Check if guest volunteer exists
-    const guestVolunteer = await prisma.guestVolunteer.findUnique({
+    const guestVolunteer = await prisma.guestVolunteer.findFirst({
       where: { email: validatedData.email }
     })
 
