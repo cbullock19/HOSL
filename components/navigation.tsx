@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Home, Calendar, Users, BarChart3, Settings, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { getOrgDisplayName } from '@/lib/org'
+import { useAuth } from '@/hooks/use-auth'
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -23,6 +24,7 @@ export function Navigation() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const isAdminPage = pathname?.startsWith('/admin')
+  const { isAuthenticated, isLoading } = useAuth()
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -61,29 +63,33 @@ export function Navigation() {
             })}
             
             {/* Dashboard & Profile - Only show when signed in */}
-            <Link
-              href="/dashboard"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                pathname === '/dashboard'
-                  ? 'bg-blue-100 text-blue-700 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              <span>Dashboard</span>
-            </Link>
-            
-            <Link
-              href="/profile"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                pathname === '/profile'
-                  ? 'bg-blue-100 text-blue-700 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              <span>Profile</span>
-            </Link>
+            {isAuthenticated && (
+              <>
+                <Link
+                  href="/dashboard"
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                    pathname === '/dashboard'
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Dashboard</span>
+                </Link>
+                
+                <Link
+                  href="/profile"
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                    pathname === '/profile'
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Profile</span>
+                </Link>
+              </>
+            )}
             
             {isAdminPage && adminNavigation.map((item) => {
               const isActive = pathname === item.href
@@ -127,30 +133,36 @@ export function Navigation() {
 
           {/* Auth Buttons - Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
-            <Link href="/login">
-              <Button variant="outline" size="sm" className="px-4 py-2">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/dashboard">
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 px-4 py-2">
-                Dashboard
-              </Button>
-            </Link>
+            {!isAuthenticated ? (
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="px-4 py-2">
+                  Sign In
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/dashboard">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 px-4 py-2">
+                  Dashboard
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Auth Buttons - Tablet */}
           <div className="hidden md:flex lg:hidden items-center space-x-2">
-            <Link href="/login">
-              <Button variant="outline" size="sm" className="px-3 py-2 text-sm">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/dashboard">
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 px-3 py-2 text-sm">
-                Dashboard
-              </Button>
-            </Link>
+            {!isAuthenticated ? (
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="px-3 py-2 text-sm">
+                  Sign In
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/dashboard">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 px-3 py-2 text-sm">
+                  Dashboard
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
