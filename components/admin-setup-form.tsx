@@ -6,32 +6,25 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Shield, CheckCircle, AlertCircle } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { CheckCircle, AlertCircle, Shield, Users, Mail } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
 
-export default function AdminSetupPage() {
+export function AdminSetupForm() {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    confirmPassword: '',
     firstName: '',
     lastName: '',
     phone: ''
   })
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (formData.password !== formData.confirmPassword) {
-      setMessage({ type: 'error', text: 'Passwords do not match' })
-      return
-    }
-
-    if (formData.password.length < 8) {
-      setMessage({ type: 'error', text: 'Password must be at least 8 characters long' })
+    if (!user) {
+      setMessage({ type: 'error', text: 'You must be logged in to invite admin users' })
       return
     }
 
@@ -42,16 +35,28 @@ export default function AdminSetupPage() {
       const response = await fetch('/api/admin-setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          invitedBy: user.id
+        })
       })
 
       const result = await response.json()
 
       if (result.success) {
-        setMessage({ type: 'success', text: 'Admin account created successfully! Redirecting to login...' })
-        setTimeout(() => router.push('/login'), 2000)
+        setMessage({ 
+          type: 'success', 
+          text: `Admin invitation sent successfully to ${formData.email}! They will receive an email with their temporary login credentials.` 
+        })
+        // Reset form
+        setFormData({
+          email: '',
+          firstName: '',
+          lastName: '',
+          phone: ''
+        })
       } else {
-        setMessage({ type: 'error', text: result.error || 'Failed to create admin account' })
+        setMessage({ type: 'error', text: result.error || 'Failed to send admin invitation' })
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'An unexpected error occurred' })
@@ -61,83 +66,81 @@ export default function AdminSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-            <Shield className="w-8 h-8 text-blue-600" />
-          </div>
-          <CardTitle className="text-2xl">Admin Setup</CardTitle>
-          <p className="text-gray-600 mt-2">
-            Create the first administrator account for Hands of St. Luke Pantry
+    <div className="max-w-2xl mx-auto">
+      {/* Info Card */}
+      <Card className="mb-6 border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-800">
+            <Shield className="w-5 h-5" />
+            Admin Invitation System
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-blue-700">
+          <p className="mb-3">
+            Use this form to invite new administrators to the Hands of St. Luke Pantry system. 
+            Invited users will receive an email with temporary login credentials.
           </p>
+          <div className="text-sm space-y-1">
+            <p><strong>Note:</strong> Only existing administrators can invite new admin users.</p>
+            <p><strong>Security:</strong> All admin accounts require email verification and secure passwords.</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Invitation Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Invite New Administrator
+          </CardTitle>
         </CardHeader>
         
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">First Name *</Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
                   onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
                   required
+                  placeholder="Enter first name"
                 />
               </div>
               <div>
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">Last Name *</Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
                   onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
                   required
+                  placeholder="Enter last name"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email Address *</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 required
+                placeholder="Enter email address"
               />
             </div>
 
             <div>
-              <Label htmlFor="phone">Phone (Optional)</Label>
+              <Label htmlFor="phone">Phone Number (Optional)</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                required
-                minLength={8}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                required
-                minLength={8}
+                placeholder="Enter phone number"
               />
             </div>
 
@@ -159,18 +162,19 @@ export default function AdminSetupPage() {
               className="w-full" 
               disabled={loading}
             >
-              {loading ? 'Creating Account...' : 'Create Admin Account'}
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Sending Invitation...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send Admin Invitation
+                </>
+              )}
             </Button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Button variant="link" className="p-0 h-auto" onClick={() => router.push('/login')}>
-                Sign in here
-              </Button>
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

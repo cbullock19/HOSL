@@ -4,26 +4,27 @@ import bcrypt from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, firstName, lastName, phone } = await request.json()
+    const { email, firstName, lastName, phone, invitedBy } = await request.json()
     
     // Validate required fields
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !firstName || !lastName || !invitedBy) {
       return NextResponse.json({ 
         success: false, 
         error: 'All required fields must be provided' 
       }, { status: 400 })
     }
 
-    // Check if any admin users already exist
-    const existingAdmin = await db.user.findFirst({
-      where: { role: 'ADMIN' }
+    // Verify the inviter is an admin
+    const inviter = await db.user.findUnique({
+      where: { id: invitedBy },
+      select: { role: true }
     })
-    
-    if (existingAdmin) {
+
+    if (!inviter || inviter.role !== 'ADMIN') {
       return NextResponse.json({ 
         success: false, 
-        error: 'Admin account already exists. Only one admin setup is allowed.' 
-      }, { status: 400 })
+        error: 'Only existing administrators can invite new admin users' 
+      }, { status: 403 })
     }
 
     // Check if user with this email already exists
@@ -38,8 +39,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 12)
+    // Generate temporary password
+    const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
+    const hashedPassword = await bcrypt.hash(tempPassword, 12)
     
     // Create admin user
     const adminUser = await db.user.create({
@@ -60,12 +62,17 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    console.log('✅ First admin account created:', adminUser.email)
+    console.log('✅ Admin user invited:', adminUser.email)
+    
+    // TODO: Send invitation email with temporary credentials
+    // For now, just return success with the temp password
+    // In production, this should send an email
     
     return NextResponse.json({ 
       success: true, 
-      message: 'Admin account created successfully',
-      userId: adminUser.id 
+      message: 'Admin user invited successfully',
+      userId: adminUser.id,
+      tempPassword // Remove this in production - should be emailed
     })
     
   } catch (error) {

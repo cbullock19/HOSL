@@ -14,6 +14,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:studio": "prisma studio",
     "db:setup-admin": "tsx scripts/setup-admin.ts",
+    "db:setup-first-admin": "tsx scripts/setup-first-admin.ts",
     "email:dev": "email dev --port 3001"
   },
   "dependencies": {

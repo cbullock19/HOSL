@@ -401,7 +401,7 @@ export function VolunteerDashboard() {
                   <Button 
                     variant="outline" 
                     className="h-20 flex-col bg-blue-50 border-blue-200 hover:bg-blue-100"
-                    onClick={() => router.push('/admin/tasks')}
+                    onClick={() => router.push('/admin/setup')}
                   >
                     <Trophy className="w-6 h-6 mb-2 text-blue-600" />
                     <span className="text-sm text-blue-700">Invite Admin</span>

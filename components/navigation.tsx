@@ -21,7 +21,7 @@ const adminNavigation = [
 ]
 
 const setupNavigation = [
-  { name: 'Admin Setup', href: '/admin-setup', icon: Settings },
+  { name: 'Admin Setup', href: '/admin/setup', icon: Settings },
 ]
 
 export function Navigation() {
@@ -114,8 +114,8 @@ export function Navigation() {
               )
             })}
             
-            {/* Show setup navigation when no admin exists */}
-            {!isAdmin && setupNavigation.map((item) => {
+            {/* Show admin setup only for existing admin users */}
+            {isAdmin && setupNavigation.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
@@ -257,12 +257,12 @@ export function Navigation() {
                 </>
               )}
               
-              {/* Show setup navigation when no admin exists */}
-              {!isAdmin && (
+              {/* Show admin setup only for existing admin users */}
+              {isAdmin && (
                 <>
                   <div className="pt-2 pb-1">
                     <div className="px-4 text-xs font-semibold text-orange-500 uppercase tracking-wider">
-                      Setup
+                      Admin Setup
                     </div>
                   </div>
                   {setupNavigation.map((item) => {
@@ -274,7 +274,7 @@ export function Navigation() {
                         className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
                           isActive
                             ? 'bg-orange-100 text-orange-700'
-                            : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'
+                            : 'text-orange-600 hover:text-orange-700 hover:bg-orange-500'
                         }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
