@@ -74,18 +74,26 @@ export default function SignupPage() {
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl">Account Created!</CardTitle>
+            <CardTitle className="text-2xl">Account Created Successfully!</CardTitle>
             <CardDescription className="text-lg">
-              Welcome to Hands of St. Luke Pantry
+              Please check your email to confirm your account
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-gray-600">
-              Your account has been created successfully. You can now sign in to track your volunteer progress and manage your profile.
+              We've sent a confirmation email to <strong>{formData.email}</strong>. Please check your inbox and click the confirmation link to activate your account.
             </p>
+            <p className="text-gray-600 text-sm">
+              After confirming your email, you'll be able to sign in to your account and start tracking your volunteer impact.
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-blue-800 text-sm">
+                💡 <strong>Tip:</strong> Check your spam folder if you don't see the email within a few minutes.
+              </p>
+            </div>
             <Link href="/login" className="block">
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                Sign In to Your Account
+                Go to Sign In Page
               </Button>
             </Link>
             <Link href="/" className="block">
