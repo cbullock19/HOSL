@@ -29,23 +29,26 @@ export function Navigation() {
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="flex items-center justify-between h-16 lg:h-18">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-blue-600 rounded-full flex-shrink-0"></div>
-            <span className="text-lg lg:text-xl font-bold text-gray-900 hidden sm:block">{getOrgDisplayName()}</span>
-            <span className="text-base font-bold text-gray-900 sm:hidden">HOSL</span>
+            {/* Logo placeholder - replace with your St. Luke logo */}
+            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-blue-600 rounded-full flex-shrink-0 flex items-center justify-center">
+              <span className="text-white text-xs lg:text-sm font-bold">SL</span>
+            </div>
+            <span className="text-base lg:text-lg font-bold text-gray-900 hidden sm:block">{getOrgDisplayName()}</span>
+            <span className="text-sm font-bold text-gray-900 sm:hidden">HOSL</span>
           </Link>
 
           {/* Desktop Navigation - Hidden on mobile, visible on lg+ */}
-          <div className="hidden lg:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center space-x-2">
             {navigation.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                     isActive
                       ? 'bg-blue-100 text-blue-700 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -77,14 +80,14 @@ export function Navigation() {
           </div>
 
           {/* Tablet Navigation - Visible on md, hidden on mobile and lg+ */}
-          <div className="hidden md:flex lg:hidden items-center space-x-2">
+          <div className="hidden md:flex lg:hidden items-center space-x-3">
             {navigation.slice(0, 3).map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                     isActive
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -98,7 +101,7 @@ export function Navigation() {
           </div>
 
           {/* Auth Buttons - Desktop */}
-          <div className="hidden lg:flex items-center space-x-3">
+          <div className="hidden lg:flex items-center space-x-4">
             <Link href="/login">
               <Button variant="outline" size="sm" className="px-4 py-2">
                 Sign In
@@ -145,7 +148,7 @@ export function Navigation() {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 border-t bg-white">
-            <div className="space-y-1">
+            <div className="space-y-2">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
