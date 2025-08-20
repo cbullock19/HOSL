@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, MapPin, CheckCircle, XCircle, Package, Truck, Trophy, Star, Heart, Award } from 'lucide-react'
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, Package, Truck, Trophy, Star, Heart, Award, Settings, BarChart3, Users } from 'lucide-react'
 import { formatDate, formatTime } from '@/lib/utils'
+import { useAuth } from '@/contexts/auth-context'
+import { useRouter } from 'next/navigation'
 
 // Mock data - replace with actual API calls
 const mockUpcomingTasks = [
@@ -80,6 +82,8 @@ const mockVolunteerStats = {
 }
 
 export function VolunteerDashboard() {
+  const { isAdmin } = useAuth()
+  const router = useRouter()
   const [taskStatuses, setTaskStatuses] = useState<Record<string, string>>({
     '1': 'CONFIRMED',
     '2': 'PENDING',
@@ -371,6 +375,49 @@ export function VolunteerDashboard() {
               <span className="text-sm">Set Preferences</span>
             </Button>
           </div>
+          
+          {/* Admin Quick Actions */}
+          {isAdmin && (
+            <>
+              <div className="mt-6 pt-6 border-t">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Actions</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col bg-blue-50 border-blue-200 hover:bg-blue-100"
+                    onClick={() => router.push('/admin/tasks')}
+                  >
+                    <Settings className="w-6 h-6 mb-2 text-blue-600" />
+                    <span className="text-sm text-blue-700">Manage Tasks</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col bg-blue-50 border-blue-200 hover:bg-blue-100"
+                    onClick={() => router.push('/admin/reports')}
+                  >
+                    <BarChart3 className="w-6 h-6 mb-2 text-blue-600" />
+                    <span className="text-sm text-blue-700">View Reports</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col bg-blue-50 border-blue-200 hover:bg-blue-100"
+                    onClick={() => router.push('/admin/tasks')}
+                  >
+                    <Trophy className="w-6 h-6 mb-2 text-blue-600" />
+                    <span className="text-sm text-blue-700">Invite Admin</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col bg-blue-50 border-blue-200 hover:bg-blue-100"
+                    onClick={() => router.push('/admin/tasks')}
+                  >
+                    <Users className="w-6 h-6 mb-2 text-blue-600" />
+                    <span className="text-sm text-blue-700">Manage Users</span>
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

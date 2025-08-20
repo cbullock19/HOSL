@@ -20,11 +20,15 @@ const adminNavigation = [
   { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
 ]
 
+const setupNavigation = [
+  { name: 'Admin Setup', href: '/admin-setup', icon: Settings },
+]
+
 export function Navigation() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const isAdminPage = pathname?.startsWith('/admin')
-  const { user, loading } = useAuth()
+  const { user, loading, isAdmin } = useAuth()
   const isAuthenticated = !!user
 
   return (
@@ -92,7 +96,7 @@ export function Navigation() {
               </>
             )}
             
-            {isAdminPage && adminNavigation.map((item) => {
+            {isAdminPage && isAdmin && adminNavigation.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
@@ -102,6 +106,25 @@ export function Navigation() {
                     isActive
                       ? 'bg-blue-100 text-blue-700 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.name}</span>
+                </Link>
+              )
+            })}
+            
+            {/* Show setup navigation when no admin exists */}
+            {!isAdmin && setupNavigation.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? 'bg-orange-100 text-orange-700 shadow-sm'
+                      : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -206,7 +229,7 @@ export function Navigation() {
                 )
               })}
               
-              {isAdminPage && (
+              {isAdminPage && isAdmin && (
                 <>
                   <div className="pt-2 pb-1">
                     <div className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -222,7 +245,36 @@ export function Navigation() {
                         className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
                           isActive
                             ? 'bg-blue-100 text-blue-700'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <span>{item.name}</span>
+                      </Link>
+                    )
+                  })}
+                </>
+              )}
+              
+              {/* Show setup navigation when no admin exists */}
+              {!isAdmin && (
+                <>
+                  <div className="pt-2 pb-1">
+                    <div className="px-4 text-xs font-semibold text-orange-500 uppercase tracking-wider">
+                      Setup
+                    </div>
+                  </div>
+                  {setupNavigation.map((item) => {
+                    const isActive = pathname === item.href
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                          isActive
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'
                         }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >

@@ -1,21 +1,24 @@
 import { Suspense } from 'react'
 import { PageHeader } from '@/components/page-header'
 import { AdminReports } from '@/components/admin-reports'
+import { AdminGuard } from '@/components/admin-guard'
 
 export default function AdminReportsPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageHeader 
-        title="Hands of St. Luke Pantry – Reports"
-        description="Track food collection, delivery, and volunteer impact"
-      />
-      
-      <div className="container mx-auto px-4 py-6">
-        <Suspense fallback={<ReportsSkeleton />}>
-          <AdminReports />
-        </Suspense>
+    <AdminGuard>
+      <div className="min-h-screen bg-gray-50">
+        <PageHeader 
+          title="Hands of St. Luke Pantry – Reports"
+          description="Track food collection, delivery, and volunteer impact"
+        />
+        
+        <div className="container mx-auto px-4 py-6">
+          <Suspense fallback={<ReportsSkeleton />}>
+            <AdminReports />
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </AdminGuard>
   )
 }
 

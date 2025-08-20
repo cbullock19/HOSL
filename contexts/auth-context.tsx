@@ -8,6 +8,8 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
+  userRole: 'ADMIN' | 'VOLUNTEER' | null
+  isAdmin: boolean
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string; message?: string }>
   signOut: () => Promise<void>
   signUp: (email: string, password: string, userData: { firstName: string; lastName: string; phone?: string }) => Promise<{ success: boolean; error?: string }>
@@ -20,6 +22,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<'ADMIN' | 'VOLUNTEER' | null>(null)
+
+  // Function to fetch user role from database
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const response = await fetch('/api/user-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      })
+      
+      if (response.ok) {
+        const { role } = await response.json()
+        setUserRole(role)
+      } else {
+        setUserRole('VOLUNTEER') // Default fallback
+      }
+    } catch (error) {
+      console.error('Error fetching user role:', error)
+      setUserRole('VOLUNTEER') // Default fallback
+    }
+  }
 
   useEffect(() => {
     // Get initial session and validate it
@@ -38,10 +62,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await supabase.auth.signOut()
             setSession(null)
             setUser(null)
+            setUserRole(null)
           } else {
             // Session is valid
             setSession(session)
             setUser(user)
+            // Fetch user role from database
+            await fetchUserRole(user.id)
           }
         } catch (error) {
           // Error validating session, clear it
@@ -49,10 +76,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await supabase.auth.signOut()
           setSession(null)
           setUser(null)
+          setUserRole(null)
         }
       } else {
         setSession(null)
         setUser(null)
+        setUserRole(null)
       }
       
       setLoading(false)
@@ -66,6 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Auth state change:', event, session?.user?.email)
         setSession(session)
         setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          await fetchUserRole(session.user.id)
+        } else {
+          setUserRole(null)
+        }
+        
         setLoading(false)
       }
     )
@@ -155,6 +191,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     session,
     loading,
+    userRole,
+    isAdmin: userRole === 'ADMIN',
     signIn,
     signOut,
     signUp,
