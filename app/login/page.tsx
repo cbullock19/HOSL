@@ -6,22 +6,33 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Mail, ArrowLeft } from 'lucide-react'
+import { Mail, ArrowLeft, AlertCircle } from 'lucide-react'
+import { sendMagicLink } from '@/app/actions/send-magic-link'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError('')
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+    try {
+      const result = await sendMagicLink({ email })
+      
+      if (result.success) {
+        setIsSubmitted(true)
+      } else {
+        setError(result.error || 'Failed to send magic link')
+      }
+    } catch (err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (isSubmitted) {
@@ -87,6 +98,13 @@ export default function LoginPage() {
                 disabled={isSubmitting}
               />
             </div>
+            
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                {error}
+              </div>
+            )}
             
             <Button
               type="submit"
