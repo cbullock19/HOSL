@@ -10,11 +10,8 @@ import { getOrgDisplayName } from '@/lib/org'
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Opportunities', href: '/opportunities', icon: Calendar },
-  { name: 'Dashboard', href: '/dashboard', icon: Users },
-  { name: 'Profile', href: '/profile', icon: Users },
   { name: 'How It Works', href: '/confirm', icon: Settings },
   { name: 'About', href: '/about', icon: BarChart3 },
-  { name: 'Examples', href: '/examples', icon: BarChart3 },
 ]
 
 const adminNavigation = [
@@ -62,6 +59,31 @@ export function Navigation() {
                 </Link>
               )
             })}
+            
+            {/* Dashboard & Profile - Only show when signed in */}
+            <Link
+              href="/dashboard"
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                pathname === '/dashboard'
+                  ? 'bg-blue-100 text-blue-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Dashboard</span>
+            </Link>
+            
+            <Link
+              href="/profile"
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                pathname === '/profile'
+                  ? 'bg-blue-100 text-blue-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Profile</span>
+            </Link>
             
             {isAdminPage && adminNavigation.map((item) => {
               const isActive = pathname === item.href

@@ -1,21 +1,27 @@
 import { Suspense } from 'react'
 import { PageHeader } from '@/components/page-header'
 import { VolunteerDashboard } from '@/components/volunteer-dashboard'
+import { AuthGate } from '@/components/auth-gate'
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageHeader 
-        title="Your Dashboard"
-        description="Manage your volunteer commitments and track your impact"
-      />
-      
-      <div className="container mx-auto px-4 py-6">
-        <Suspense fallback={<DashboardSkeleton />}>
-          <VolunteerDashboard />
-        </Suspense>
+    <AuthGate 
+      title="Your Dashboard"
+      description="Sign in or create an account to access your volunteer dashboard"
+    >
+      <div className="min-h-screen bg-gray-50">
+        <PageHeader 
+          title="Your Dashboard"
+          description="Manage your volunteer commitments and track your impact"
+        />
+        
+        <div className="container mx-auto px-4 py-6">
+          <Suspense fallback={<DashboardSkeleton />}>
+            <VolunteerDashboard />
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </AuthGate>
   )
 }
 
