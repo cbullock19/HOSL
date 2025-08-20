@@ -7,10 +7,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { UserPlus, ArrowLeft, CheckCircle } from 'lucide-react'
-import { createAccount } from '@/app/actions/create-account'
+import { useAuth } from '@/contexts/auth-context'
 import { toast } from 'sonner'
 
 export default function SignupPage() {
+  const { signUp } = useAuth()
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -38,17 +39,19 @@ export default function SignupPage() {
     setIsSubmitting(true)
     
     try {
-      const result = await createAccount({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone || undefined,
-        password: formData.password,
-      })
+      const result = await signUp(
+        formData.email,
+        formData.password,
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.phone || undefined,
+        }
+      )
 
       if (result.success) {
         setIsSubmitted(true)
-        toast.success('Account created successfully!')
+        toast.success('Account created successfully! Please check your email to confirm your account.')
       } else {
         toast.error(result.error || 'Failed to create account')
       }
