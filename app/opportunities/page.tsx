@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { OpportunitiesList } from '@/components/opportunities-list'
 import { PageHeader } from '@/components/page-header'
 import { FilterBar } from '@/components/filter-bar'
