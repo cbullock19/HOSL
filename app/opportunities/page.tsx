@@ -1,3 +1,5 @@
+'use client'
+
 import { Suspense } from 'react'
 import { OpportunitiesList } from '@/components/opportunities-list'
 import { PageHeader } from '@/components/page-header'
@@ -6,6 +8,28 @@ import { GuestVsAccount } from '@/components/guest-vs-account'
 import { getOrgDisplayName } from '@/lib/org'
 
 export default function OpportunitiesPage() {
+  // Filter state management
+  const [filters, setFilters] = useState({
+    day: 'all',
+    type: 'all',
+    location: 'all'
+  })
+
+  const handleFilterChange = (filterType: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }))
+  }
+
+  const clearFilters = () => {
+    setFilters({
+      day: 'all',
+      type: 'all',
+      location: 'all'
+    })
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <PageHeader 
@@ -34,15 +58,19 @@ export default function OpportunitiesPage() {
           </div>
         </div>
         
-        <FilterBar />
+        <FilterBar 
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={clearFilters}
+        />
         
         <GuestVsAccount />
         
         <Suspense fallback={<OpportunitiesSkeleton />}>
-          <OpportunitiesList />
+          <OpportunitiesList filters={filters} />
         </Suspense>
       </div>
-      </div>
+    </div>
   )
 }
 

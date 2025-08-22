@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +9,16 @@ import { formatDate, formatTime, getDayOfWeek } from '@/lib/utils'
 import { QuickSignupModal } from '@/components/quick-signup-modal'
 import { quickSignup } from '@/app/actions/quick-signup'
 import { toast } from 'sonner'
+
+interface Filters {
+  day: string
+  type: string
+  location: string
+}
+
+interface OpportunitiesListProps {
+  filters: Filters
+}
 
 // Mock data - replace with actual API calls
 const mockTasks = [
@@ -24,6 +34,8 @@ const mockTasks = [
     capacity: 2,
     claimed: 1,
     status: 'OPEN' as const,
+    dayOfWeek: 'monday',
+    locationKey: 'shoprite'
   },
   {
     id: 'clh1234567890abcdeg',
@@ -37,6 +49,8 @@ const mockTasks = [
     capacity: 1,
     claimed: 0,
     status: 'OPEN' as const,
+    dayOfWeek: 'monday',
+    locationKey: 'pantry'
   },
   {
     id: 'clh1234567890abcdeh',
@@ -50,6 +64,8 @@ const mockTasks = [
     capacity: 1,
     claimed: 0,
     status: 'OPEN' as const,
+    dayOfWeek: 'tuesday',
+    locationKey: 'stopandshop'
   },
   {
     id: 'clh1234567890abcdei',
@@ -63,13 +79,70 @@ const mockTasks = [
     capacity: 2,
     claimed: 1,
     status: 'OPEN' as const,
+    dayOfWeek: 'tuesday',
+    locationKey: 'community'
   },
+  {
+    id: 'clh1234567890abcdej',
+    title: 'Wednesday Morning Pickup',
+    date: new Date('2024-01-17'),
+    startTime: '09:00',
+    endTime: '10:00',
+    type: 'PICKUP' as const,
+    source: 'Weis – Hackettstown',
+    address: '555 Route 46, Hackettstown, NJ',
+    capacity: 2,
+    claimed: 0,
+    status: 'OPEN' as const,
+    dayOfWeek: 'wednesday',
+    locationKey: 'weishackettstown'
+  },
+  {
+    id: 'clh1234567890abcdek',
+    title: 'Thursday Delivery to Food Bank',
+    date: new Date('2024-01-18'),
+    startTime: '14:00',
+    endTime: '15:00',
+    type: 'DELIVERY' as const,
+    recipient: 'Mt. Olive Food Bank',
+    address: '777 Mountain Ave, Mt. Olive, NJ',
+    capacity: 1,
+    claimed: 0,
+    status: 'OPEN' as const,
+    dayOfWeek: 'thursday',
+    locationKey: 'foodbank'
+  }
 ]
 
-export function OpportunitiesList() {
+export function OpportunitiesList({ filters }: OpportunitiesListProps) {
   const [claimedTasks, setClaimedTasks] = useState<Set<string>>(new Set())
   const [selectedTask, setSelectedTask] = useState<any>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // Filter the tasks based on selected filters
+  const filteredTasks = useMemo(() => {
+    return mockTasks.filter(task => {
+      // Filter by day
+      if (filters.day !== 'all' && task.dayOfWeek !== filters.day) {
+        return false
+      }
+      
+      // Filter by type
+      if (filters.type !== 'all') {
+        const taskType = filters.type === 'pickup' ? 'PICKUP' : 'DELIVERY'
+        if (task.type !== taskType) {
+          return false
+        }
+      }
+      
+      // Filter by location
+      if (filters.location !== 'all' && task.locationKey !== filters.location) {
+        return false
+      }
+      
+      return true
+    })
+  }, [filters])
 
   const handleClaim = (task: any) => {
     setSelectedTask(task)
@@ -95,7 +168,36 @@ export function OpportunitiesList() {
 
   return (
     <div className="space-y-4">
-      {mockTasks.map((task) => (
+      {/* Filter Summary */}
+      {Object.values(filters).some(filter => filter !== 'all') && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-2 text-blue-800">
+            <span className="font-medium">Showing results for:</span>
+            {filters.day !== 'all' && (
+              <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                {filters.day.charAt(0).toUpperCase() + filters.day.slice(1)}
+              </Badge>
+            )}
+            {filters.type !== 'all' && (
+              <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                {filters.type.charAt(0).toUpperCase() + filters.type.slice(1)}
+              </Badge>
+            )}
+            {filters.location !== 'all' && (
+              <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                {filters.location === 'shoprite' ? 'ShopRite – Chester' :
+                 filters.location === 'weishackettstown' ? 'Weis – Hackettstown' :
+                 filters.location === 'stopandshop' ? 'Stop & Shop – Mansfield' :
+                 filters.location === 'pantry' ? 'Hands of St. Luke Pantry' :
+                 filters.location === 'community' ? 'Long Valley Community Assistance' :
+                 filters.location === 'foodbank' ? 'Mt. Olive Food Bank' : filters.location}
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {filteredTasks.map((task) => (
         <Card key={task.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -183,17 +285,27 @@ export function OpportunitiesList() {
         </Card>
       ))}
       
-      {mockTasks.length === 0 && (
+      {filteredTasks.length === 0 && (
         <Card className="text-center py-12">
           <CardContent>
             <div className="text-gray-500">
               <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <h3 className="text-xl font-medium mb-2">No tasks available</h3>
-              <p>Check back later for new volunteer opportunities</p>
+              <h3 className="text-xl font-medium mb-2">
+                {Object.values(filters).some(filter => filter !== 'all') 
+                  ? 'No tasks match your filters' 
+                  : 'No tasks available'
+                }
+              </h3>
+              <p>
+                {Object.values(filters).some(filter => filter !== 'all')
+                  ? 'Try adjusting your filters or check back later for new opportunities'
+                  : 'Check back later for new volunteer opportunities'
+                }
+              </p>
             </div>
           </CardContent>
         </Card>
-      )}
+        )}
       
       {/* Quick Signup Modal */}
       <QuickSignupModal

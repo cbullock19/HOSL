@@ -1,15 +1,20 @@
 'use client'
 
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Filter, Calendar, MapPin } from 'lucide-react'
 
-export function FilterBar() {
-  const [selectedDay, setSelectedDay] = useState<string>('all')
-  const [selectedType, setSelectedType] = useState<string>('all')
-  const [selectedLocation, setSelectedLocation] = useState<string>('all')
+interface FilterBarProps {
+  filters: {
+    day: string
+    type: string
+    location: string
+  }
+  onFilterChange: (filterType: string, value: string) => void
+  onClearFilters: () => void
+}
 
+export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBarProps) {
   const days = [
     { value: 'all', label: 'All Days' },
     { value: 'monday', label: 'Monday' },
@@ -30,18 +35,12 @@ export function FilterBar() {
   const locations = [
     { value: 'all', label: 'All Locations' },
     { value: 'shoprite', label: 'ShopRite – Chester' },
-    { value: 'weis', label: 'Weis – Hackettstown' },
+    { value: 'weishackettstown', label: 'Weis – Hackettstown' },
     { value: 'stopandshop', label: 'Stop & Shop – Mansfield' },
     { value: 'pantry', label: 'Hands of St. Luke Pantry' },
     { value: 'community', label: 'Long Valley Community Assistance' },
     { value: 'foodbank', label: 'Mt. Olive Food Bank' },
   ]
-
-  const clearFilters = () => {
-    setSelectedDay('all')
-    setSelectedType('all')
-    setSelectedLocation('all')
-  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
@@ -54,7 +53,7 @@ export function FilterBar() {
         <div className="flex flex-col sm:flex-row gap-3 flex-1">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-gray-500" />
-            <Select value={selectedDay} onValueChange={setSelectedDay}>
+            <Select value={filters.day} onValueChange={(value) => onFilterChange('day', value)}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -70,7 +69,7 @@ export function FilterBar() {
 
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-gray-500" />
-            <Select value={selectedType} onValueChange={setSelectedType}>
+            <Select value={filters.type} onValueChange={(value) => onFilterChange('type', value)}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -86,7 +85,7 @@ export function FilterBar() {
 
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-gray-500" />
-            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+            <Select value={filters.location} onValueChange={(value) => onFilterChange('location', value)}>
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
@@ -104,7 +103,7 @@ export function FilterBar() {
         <Button
           variant="outline"
           size="sm"
-          onClick={clearFilters}
+          onClick={onClearFilters}
           className="whitespace-nowrap"
         >
           Clear Filters
