@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { User, Edit, Save, X, Trophy, Star, Heart, Award, Plus, Phone } from 'lucide-react'
+import { User, Edit, Save, X, Trophy, Star, Heart, Award, Plus, Phone, LogOut } from 'lucide-react'
 import { toast } from 'sonner'
 import { AuthGate } from '@/components/auth-gate'
 import { useAuth } from '@/contexts/auth-context'
@@ -381,6 +381,18 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Status</span>
                     <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
+                  </div>
+                  
+                  {/* Sign Out Button */}
+                  <div className="pt-3 border-t border-gray-200">
+                    <Button 
+                      variant="outline" 
+                      onClick={clearSession}
+                      className="w-full text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700 hover:border-red-400"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
