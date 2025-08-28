@@ -89,7 +89,9 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
     const userData: any = {
       id: `cuid_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate a unique ID
       email: validatedData.email,
-      role: 'ADMIN'
+      role: 'ADMIN',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
 
     // Add password column based on what exists
@@ -133,7 +135,9 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
     const profileData: any = {
       id: `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate a unique ID
       firstName: validatedData.firstName,
-      lastName: validatedData.lastName
+      lastName: validatedData.lastName,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
 
     // Add user ID column based on what exists
