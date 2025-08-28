@@ -24,8 +24,8 @@ export default function ProfilePage() {
 
   // Extract user data from Supabase Auth
   const userData = authUser?.user_metadata || {}
-  const firstName = userData.first_name || 'N/A'
-  const lastName = userData.last_name || 'N/A'
+  const firstName = userData.firstName || userData.first_name || 'N/A'
+  const lastName = userData.lastName || userData.last_name || 'N/A'
   const phone = userData.phone || ''
   const email = authUser?.email || 'N/A'
   const createdAt = authUser?.created_at ? new Date(authUser.created_at) : new Date()
