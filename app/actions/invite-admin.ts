@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { getPrismaClient } from '@/lib/db'
+import { createIsolatedPrismaClient } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
 
 const inviteAdminSchema = z.object({
@@ -12,8 +12,8 @@ const inviteAdminSchema = z.object({
 })
 
 export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
-  // Get a fresh Prisma client for this request
-  const prisma = getPrismaClient()
+  // Get a completely isolated Prisma client for this request
+  const prisma = createIsolatedPrismaClient()
   
   try {
     console.log('🚀 Starting admin invitation process for:', data.email)
