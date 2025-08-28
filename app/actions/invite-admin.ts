@@ -1,8 +1,9 @@
 'use server'
 
 import { z } from 'zod'
-import { createIsolatedPrismaClient } from '@/lib/db'
+import { sql } from '@vercel/postgres'
 import { sendEmail } from '@/lib/email'
+import bcrypt from 'bcryptjs'
 
 const inviteAdminSchema = z.object({
   email: z.string().email(),
@@ -12,63 +13,63 @@ const inviteAdminSchema = z.object({
 })
 
 export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
-  // Get a completely isolated Prisma client for this request
-  const prisma = createIsolatedPrismaClient()
-  
   try {
     console.log('🚀 Starting admin invitation process for:', data.email)
     const validatedData = inviteAdminSchema.parse(data)
 
-    // Verify the inviter is an admin
-    const inviter = await prisma.user.findUnique({
-      where: { id: validatedData.invitedBy },
-      select: { role: true }
-    })
-
-    if (!inviter || inviter.role !== 'ADMIN') {
-      console.log('❌ Inviter not found or not admin:', { inviterId: validatedData.invitedBy, role: inviter?.role })
+    // Verify the inviter is an admin using direct SQL
+    console.log('🔍 Verifying inviter admin status...')
+    const inviterResult = await sql`
+      SELECT role FROM users 
+      WHERE id = ${validatedData.invitedBy}
+    `
+    
+    if (inviterResult.rows.length === 0 || inviterResult.rows[0].role !== 'ADMIN') {
+      console.log('❌ Inviter not found or not admin:', { inviterId: validatedData.invitedBy, role: inviterResult.rows[0]?.role })
       return { success: false, error: 'Only admins can invite other admins' }
     }
 
-    console.log('✅ Inviter verified as admin:', inviter.role)
+    console.log('✅ Inviter verified as admin:', inviterResult.rows[0].role)
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email }
-    })
+    // Check if user already exists using direct SQL
+    console.log('🔍 Checking for existing user...')
+    const existingUserResult = await sql`
+      SELECT id FROM users 
+      WHERE email = ${validatedData.email}
+    `
 
-    if (existingUser) {
-      console.log('❌ User already exists:', existingUser.email)
+    if (existingUserResult.rows.length > 0) {
+      console.log('❌ User already exists:', validatedData.email)
       return { success: false, error: 'A user with this email already exists' }
     }
 
     console.log('✅ No existing user found, proceeding with creation')
 
-    // Create admin user with temporary password
+    // Create admin user with temporary password using direct SQL
     const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
     console.log('🔑 Generated temporary password for:', validatedData.email)
     
-    const hashedPassword = await hash(tempPassword, 12)
+    const hashedPassword = await bcrypt.hash(tempPassword, 12)
     console.log('🔐 Password hashed successfully')
 
-    const adminUser = await prisma.user.create({
-      data: {
-        email: validatedData.email,
-        hashedPassword,
-        role: 'ADMIN',
-        volunteerProfile: {
-          create: {
-            firstName: validatedData.firstName,
-            lastName: validatedData.lastName,
-          }
-        }
-      },
-      include: {
-        volunteerProfile: true
-      }
-    })
+    // Insert the new admin user
+    console.log('👤 Creating admin user in database...')
+    const insertUserResult = await sql`
+      INSERT INTO users (email, hashed_password, role, created_at, updated_at)
+      VALUES (${validatedData.email}, ${hashedPassword}, 'ADMIN', NOW(), NOW())
+      RETURNING id
+    `
+    
+    const adminUserId = insertUserResult.rows[0].id
+    console.log('✅ Admin user created successfully:', adminUserId)
 
-    console.log('✅ Admin user created successfully:', adminUser.id)
+    // Insert the volunteer profile
+    console.log('👤 Creating volunteer profile...')
+    await sql`
+      INSERT INTO volunteer_profiles (id, user_id, first_name, last_name, created_at, updated_at)
+      VALUES (gen_random_uuid(), ${adminUserId}, ${validatedData.firstName}, ${validatedData.lastName}, NOW(), NOW())
+    `
+    console.log('✅ Volunteer profile created successfully')
 
     // Send invitation email with credentials
     console.log('📧 Sending invitation email...')
@@ -102,26 +103,9 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
       // Still return success since user was created, but log the email failure
     }
 
-    // Disconnect the Prisma client in production to clean up connections
-    if (process.env.NODE_ENV === 'production') {
-      await prisma.$disconnect()
-    }
-
-    return { success: true, adminId: adminUser.id }
+    return { success: true, adminId: adminUserId }
   } catch (error) {
     console.error('❌ Admin invitation failed:', error)
-    
-    // Disconnect the Prisma client in production even on error
-    if (process.env.NODE_ENV === 'production') {
-      await prisma.$disconnect()
-    }
-    
     return { success: false, error: 'Failed to send admin invitation' }
   }
-}
-
-// Helper function to hash passwords
-async function hash(password: string, rounds: number) {
-  const bcrypt = await import('bcryptjs')
-  return bcrypt.hash(password, rounds)
 }
