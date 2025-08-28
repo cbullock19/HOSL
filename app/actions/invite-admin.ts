@@ -87,6 +87,7 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
 
     // Build the user data object dynamically based on what columns exist
     const userData: any = {
+      id: `cuid_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate a unique ID
       email: validatedData.email,
       role: 'ADMIN'
     }
@@ -130,6 +131,7 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
 
     // Build the profile data object dynamically
     const profileData: any = {
+      id: `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate a unique ID
       firstName: validatedData.firstName,
       lastName: validatedData.lastName
     }
