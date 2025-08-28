@@ -67,9 +67,8 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
       .insert({
         email: validatedData.email,
         hashed_password: hashedPassword,
-        role: 'ADMIN',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        role: 'ADMIN'
+        // Remove created_at and updated_at - let Supabase handle these automatically
       })
       .select('id')
       .single()
@@ -89,9 +88,8 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
       .insert({
         user_id: adminUserId,
         first_name: validatedData.firstName,
-        last_name: validatedData.lastName,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        last_name: validatedData.lastName
+        // Remove created_at and updated_at - let Supabase handle these automatically
       })
 
     if (profileInsertError) {
