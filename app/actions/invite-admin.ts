@@ -13,6 +13,7 @@ const inviteAdminSchema = z.object({
 
 export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
   try {
+    console.log('🚀 Starting admin invitation process for:', data.email)
     const validatedData = inviteAdminSchema.parse(data)
 
     // Verify the inviter is an admin
@@ -22,8 +23,11 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
     })
 
     if (!inviter || inviter.role !== 'ADMIN') {
+      console.log('❌ Inviter not found or not admin:', { inviterId: validatedData.invitedBy, role: inviter?.role })
       return { success: false, error: 'Only admins can invite other admins' }
     }
+
+    console.log('✅ Inviter verified as admin:', inviter.role)
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -31,12 +35,18 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
     })
 
     if (existingUser) {
+      console.log('❌ User already exists:', existingUser.email)
       return { success: false, error: 'A user with this email already exists' }
     }
 
+    console.log('✅ No existing user found, proceeding with creation')
+
     // Create admin user with temporary password
     const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
+    console.log('🔑 Generated temporary password for:', validatedData.email)
+    
     const hashedPassword = await hash(tempPassword, 12)
+    console.log('🔐 Password hashed successfully')
 
     const adminUser = await prisma.user.create({
       data: {
@@ -55,8 +65,11 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
       }
     })
 
+    console.log('✅ Admin user created successfully:', adminUser.id)
+
     // Send invitation email with credentials
-    await sendEmail({
+    console.log('📧 Sending invitation email...')
+    const emailResult = await sendEmail({
       to: validatedData.email,
       subject: 'Admin Access Invitation - Hands of St. Luke Pantry',
       html: `
@@ -79,9 +92,16 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
       `
     })
 
+    if (emailResult.success) {
+      console.log('✅ Invitation email sent successfully')
+    } else {
+      console.log('❌ Failed to send invitation email:', emailResult.error)
+      // Still return success since user was created, but log the email failure
+    }
+
     return { success: true, adminId: adminUser.id }
   } catch (error) {
-    console.error('Admin invitation failed:', error)
+    console.error('❌ Admin invitation failed:', error)
     return { success: false, error: 'Failed to send admin invitation' }
   }
 }

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, AlertCircle, Shield, Users, Mail } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
+import { inviteAdmin } from '@/app/actions/invite-admin'
 
 export function AdminSetupForm() {
   const { user } = useAuth()
@@ -32,16 +33,13 @@ export function AdminSetupForm() {
     setMessage(null)
 
     try {
-      const response = await fetch('/api/admin-setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          invitedBy: user.id
-        })
+      // Use the working inviteAdmin action instead of the broken API route
+      const result = await inviteAdmin({
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        invitedBy: user.id
       })
-
-      const result = await response.json()
 
       if (result.success) {
         setMessage({ 
@@ -59,6 +57,7 @@ export function AdminSetupForm() {
         setMessage({ type: 'error', text: result.error || 'Failed to send admin invitation' })
       }
     } catch (error) {
+      console.error('Admin invitation error:', error)
       setMessage({ type: 'error', text: 'An unexpected error occurred' })
     } finally {
       setLoading(false)
