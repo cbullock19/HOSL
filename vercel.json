@@ -3,8 +3,5 @@
     "app/actions/invite-admin.ts": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "PRISMA_CLIENT_ENGINE_TYPE": "binary"
   }
 }
