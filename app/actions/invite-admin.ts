@@ -85,22 +85,35 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
     const hashedPassword = await bcrypt.hash(tempPassword, 12)
     console.log('🔐 Password hashed successfully')
 
-    // Build the user data object dynamically based on what columns exist
-    const userData: any = {
-      id: `cuid_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate a unique ID
+    // First, create the user in Supabase Auth (required for login)
+    console.log('🔐 Creating user in Supabase Auth...')
+    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
       email: validatedData.email,
-      role: 'ADMIN',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      password: tempPassword, // Use plain text password for Supabase Auth
+      email_confirm: true, // Auto-confirm email
+      user_metadata: {
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        role: 'ADMIN'
+      }
+    })
+
+    if (authError || !authUser) {
+      console.error('❌ Failed to create user in Supabase Auth:', authError)
+      return { success: false, error: 'Failed to create authentication user' }
     }
 
-    // Add password column based on what exists
-    if (usersStructure?.[0]?.hashedPassword !== undefined) {
-      userData.hashedPassword = hashedPassword
-    } else if (usersStructure?.[0]?.hashed_password !== undefined) {
-      userData.hashed_password = hashedPassword
-    } else if (usersStructure?.[0]?.password !== undefined) {
-      userData.password = hashedPassword
+    console.log('✅ User created in Supabase Auth:', authUser.user.id)
+
+    // Now create the user in your custom users table
+    console.log('👤 Creating user in custom users table...')
+    const userData: any = {
+      id: authUser.user.id, // Use the same ID from Supabase Auth
+      email: validatedData.email,
+      role: 'ADMIN',
+      hashedPassword: hashedPassword, // Store hashed password in your table
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
 
     console.log('👤 Creating admin user with data:', userData)
@@ -111,12 +124,14 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
       .single()
 
     if (userInsertError || !adminUser) {
-      console.error('❌ Failed to create admin user:', userInsertError)
+      console.error('❌ Failed to create admin user in custom table:', userInsertError)
+      // Try to clean up the auth user
+      await supabase.auth.admin.deleteUser(authUser.user.id)
       return { success: false, error: 'Failed to create admin user' }
     }
 
     const adminUserId = adminUser.id
-    console.log('✅ Admin user created successfully:', adminUserId)
+    console.log('✅ Admin user created successfully in custom table:', adminUserId)
 
     // Now let's check the volunteer_profiles table structure
     console.log('🔍 Inspecting volunteer_profiles table structure...')
@@ -133,7 +148,8 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
 
     // Build the profile data object dynamically
     const profileData: any = {
-      id: `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate a unique ID
+      id: `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate a unique ID for profile
+      userId: adminUserId, // Use the user ID from Supabase Auth
       firstName: validatedData.firstName,
       lastName: validatedData.lastName,
       createdAt: new Date().toISOString(),
