@@ -22,21 +22,51 @@ export default function ProfilePage() {
   const [isAddingPhone, setIsAddingPhone] = useState(false)
   const [newPhone, setNewPhone] = useState('')
 
-  // Extract user data from Supabase Auth
-  const userData = authUser?.user_metadata || {}
-  const firstName = userData.firstName || userData.first_name || 'N/A'
-  const lastName = userData.lastName || userData.last_name || 'N/A'
-  const phone = userData.phone || ''
+  const [volunteerProfile, setVolunteerProfile] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Fetch volunteer profile data from the database
+  useEffect(() => {
+    const fetchVolunteerProfile = async () => {
+      if (authUser?.id) {
+        try {
+          const { createClient } = await import('@supabase/supabase-js')
+          const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+          )
+          
+          const { data, error } = await supabase
+            .from('volunteer_profiles')
+            .select('*')
+            .eq('userId', authUser.id)
+            .single()
+          
+          if (data && !error) {
+            setVolunteerProfile(data)
+            setEditData({
+              firstName: data.firstName || '',
+              lastName: data.lastName || '',
+              phone: data.phone || '',
+            })
+          }
+        } catch (error) {
+          console.error('Error fetching volunteer profile:', error)
+        } finally {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchVolunteerProfile()
+  }, [authUser?.id])
+
+  // Extract user data from volunteer profile or fallback to auth metadata
+  const firstName = volunteerProfile?.firstName || 'N/A'
+  const lastName = volunteerProfile?.lastName || 'N/A'
+  const phone = volunteerProfile?.phone || ''
   const email = authUser?.email || 'N/A'
   const createdAt = authUser?.created_at ? new Date(authUser.created_at) : new Date()
-
-  useEffect(() => {
-    setEditData({
-      firstName,
-      lastName,
-      phone,
-    })
-  }, [firstName, lastName, phone])
 
   const handleEdit = () => {
     setIsEditing(true)
