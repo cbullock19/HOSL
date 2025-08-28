@@ -66,9 +66,9 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
       .from('users')
       .insert({
         email: validatedData.email,
-        hashed_password: hashedPassword,
+        hashedPassword: hashedPassword,
         role: 'ADMIN'
-        // Remove created_at and updated_at - let Supabase handle these automatically
+        // Remove createdAt and updatedAt - let Supabase handle these automatically
       })
       .select('id')
       .single()
@@ -86,10 +86,10 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
     const { error: profileInsertError } = await supabase
       .from('volunteer_profiles')
       .insert({
-        user_id: adminUserId,
-        first_name: validatedData.firstName,
-        last_name: validatedData.lastName
-        // Remove created_at and updated_at - let Supabase handle these automatically
+        userId: adminUserId,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName
+        // Remove createdAt and updatedAt - let Supabase handle these automatically
       })
 
     if (profileInsertError) {
