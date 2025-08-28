@@ -20,23 +20,18 @@ export const db = globalForPrisma.prisma ?? prismaClientSingleton()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
 
-// Add connection cleanup for Vercel
-if (process.env.NODE_ENV === 'production') {
-  // Graceful shutdown
-  process.on('beforeExit', async () => {
-    await db.$disconnect()
-  })
-}
-
-// Export a function to get a fresh Prisma client for serverless environments
+// Export a function to get a completely isolated Prisma client for serverless environments
 export const getPrismaClient = () => {
   if (process.env.NODE_ENV === 'production') {
-    // In production (Vercel), create a new client for each request to avoid prepared statement conflicts
+    // In production (Vercel), create a completely new client with unique connection string
+    const uniqueId = Math.random().toString(36).substr(2, 9)
+    const uniqueConnectionString = `${process.env.DATABASE_URL}?connection_limit=1&pool_timeout=20&connect_timeout=60&application_name=prisma_${uniqueId}`
+    
     return new PrismaClient({
       log: ['error'],
       datasources: {
         db: {
-          url: process.env.DATABASE_URL,
+          url: uniqueConnectionString,
         },
       },
     })
