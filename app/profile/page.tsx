@@ -23,11 +23,12 @@ export default function ProfilePage() {
   const [newPhone, setNewPhone] = useState('')
 
   const [volunteerProfile, setVolunteerProfile] = useState<any>(null)
+  const [userRole, setUserRole] = useState<string>('VOLUNTEER')
   const [loading, setLoading] = useState(true)
 
-  // Fetch volunteer profile data from the database
+  // Fetch volunteer profile data and user role from the database
   useEffect(() => {
-    const fetchVolunteerProfile = async () => {
+    const fetchUserData = async () => {
       if (authUser?.id) {
         try {
           const { createClient } = await import('@supabase/supabase-js')
@@ -36,29 +37,41 @@ export default function ProfilePage() {
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
           )
           
-          const { data, error } = await supabase
+          // Fetch volunteer profile
+          const { data: profileData, error: profileError } = await supabase
             .from('volunteer_profiles')
             .select('*')
             .eq('userId', authUser.id)
             .single()
           
-          if (data && !error) {
-            setVolunteerProfile(data)
+          // Fetch user role
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', authUser.id)
+            .single()
+          
+          if (profileData && !profileError) {
+            setVolunteerProfile(profileData)
             setEditData({
-              firstName: data.firstName || '',
-              lastName: data.lastName || '',
-              phone: data.phone || '',
+              firstName: profileData.firstName || '',
+              lastName: profileData.lastName || '',
+              phone: profileData.phone || '',
             })
           }
+          
+          if (userData && !userError) {
+            setUserRole(userData.role)
+          }
         } catch (error) {
-          console.error('Error fetching volunteer profile:', error)
+          console.error('Error fetching user data:', error)
         } finally {
           setLoading(false)
         }
       }
     }
 
-    fetchVolunteerProfile()
+    fetchUserData()
   }, [authUser?.id])
 
   // Extract user data from volunteer profile or fallback to auth metadata
@@ -439,7 +452,7 @@ export default function ProfilePage() {
                   <div className="text-xs text-orange-700">
                     <p><strong>User ID:</strong> {authUser?.id || 'None'}</p>
                     <p><strong>Email:</strong> {authUser?.email || 'None'}</p>
-                    <p><strong>Role:</strong> {userRole || 'None'} {isAdmin && '(Admin)'}</p>
+                    <p><strong>Role:</strong> {userRole || 'None'}</p>
                     <p><strong>Session:</strong> {session ? 'Active' : 'None'}</p>
                     <p><strong>Created:</strong> {authUser?.created_at || 'None'}</p>
                   </div>
