@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { db as prisma } from '@/lib/db'
+import { getPrismaClient } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
 
 const inviteAdminSchema = z.object({
@@ -12,6 +12,9 @@ const inviteAdminSchema = z.object({
 })
 
 export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
+  // Get a fresh Prisma client for this request
+  const prisma = getPrismaClient()
+  
   try {
     console.log('🚀 Starting admin invitation process for:', data.email)
     const validatedData = inviteAdminSchema.parse(data)
@@ -99,9 +102,20 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
       // Still return success since user was created, but log the email failure
     }
 
+    // Disconnect the Prisma client in production to clean up connections
+    if (process.env.NODE_ENV === 'production') {
+      await prisma.$disconnect()
+    }
+
     return { success: true, adminId: adminUser.id }
   } catch (error) {
     console.error('❌ Admin invitation failed:', error)
+    
+    // Disconnect the Prisma client in production even on error
+    if (process.env.NODE_ENV === 'production') {
+      await prisma.$disconnect()
+    }
+    
     return { success: false, error: 'Failed to send admin invitation' }
   }
 }
