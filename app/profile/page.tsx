@@ -12,7 +12,7 @@ import { AuthGate } from '@/components/auth-gate'
 import { useAuth } from '@/contexts/auth-context'
 
 export default function ProfilePage() {
-  const { user: authUser, session, clearSession, userRole, isAdmin } = useAuth()
+  const { user: authUser, session, clearSession, userRole: authUserRole, isAdmin } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
     firstName: '',
