@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { sql } from '@vercel/postgres'
+import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email'
 import bcrypt from 'bcryptjs'
 
@@ -17,35 +17,43 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
     console.log('🚀 Starting admin invitation process for:', data.email)
     const validatedData = inviteAdminSchema.parse(data)
 
-    // Verify the inviter is an admin using direct SQL
+    // Create Supabase client with service role for admin operations
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Verify the inviter is an admin using direct Supabase query
     console.log('🔍 Verifying inviter admin status...')
-    const inviterResult = await sql`
-      SELECT role FROM users 
-      WHERE id = ${validatedData.invitedBy}
-    `
+    const { data: inviter, error: inviterError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', validatedData.invitedBy)
+      .single()
     
-    if (inviterResult.rows.length === 0 || inviterResult.rows[0].role !== 'ADMIN') {
-      console.log('❌ Inviter not found or not admin:', { inviterId: validatedData.invitedBy, role: inviterResult.rows[0]?.role })
+    if (inviterError || !inviter || inviter.role !== 'ADMIN') {
+      console.log('❌ Inviter not found or not admin:', { inviterId: validatedData.invitedBy, role: inviter?.role, error: inviterError })
       return { success: false, error: 'Only admins can invite other admins' }
     }
 
-    console.log('✅ Inviter verified as admin:', inviterResult.rows[0].role)
+    console.log('✅ Inviter verified as admin:', inviter.role)
 
-    // Check if user already exists using direct SQL
+    // Check if user already exists using direct Supabase query
     console.log('🔍 Checking for existing user...')
-    const existingUserResult = await sql`
-      SELECT id FROM users 
-      WHERE email = ${validatedData.email}
-    `
+    const { data: existingUser, error: existingUserError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', validatedData.email)
+      .single()
 
-    if (existingUserResult.rows.length > 0) {
+    if (existingUser && !existingUserError) {
       console.log('❌ User already exists:', validatedData.email)
       return { success: false, error: 'A user with this email already exists' }
     }
 
     console.log('✅ No existing user found, proceeding with creation')
 
-    // Create admin user with temporary password using direct SQL
+    // Create admin user with temporary password using direct Supabase insert
     const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
     console.log('🔑 Generated temporary password for:', validatedData.email)
     
@@ -54,22 +62,44 @@ export async function inviteAdmin(data: z.infer<typeof inviteAdminSchema>) {
 
     // Insert the new admin user
     console.log('👤 Creating admin user in database...')
-    const insertUserResult = await sql`
-      INSERT INTO users (email, hashed_password, role, created_at, updated_at)
-      VALUES (${validatedData.email}, ${hashedPassword}, 'ADMIN', NOW(), NOW())
-      RETURNING id
-    `
-    
-    const adminUserId = insertUserResult.rows[0].id
+    const { data: adminUser, error: userInsertError } = await supabase
+      .from('users')
+      .insert({
+        email: validatedData.email,
+        hashed_password: hashedPassword,
+        role: 'ADMIN',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select('id')
+      .single()
+
+    if (userInsertError || !adminUser) {
+      console.error('❌ Failed to create admin user:', userInsertError)
+      return { success: false, error: 'Failed to create admin user' }
+    }
+
+    const adminUserId = adminUser.id
     console.log('✅ Admin user created successfully:', adminUserId)
 
     // Insert the volunteer profile
     console.log('👤 Creating volunteer profile...')
-    await sql`
-      INSERT INTO volunteer_profiles (id, user_id, first_name, last_name, created_at, updated_at)
-      VALUES (gen_random_uuid(), ${adminUserId}, ${validatedData.firstName}, ${validatedData.lastName}, NOW(), NOW())
-    `
-    console.log('✅ Volunteer profile created successfully')
+    const { error: profileInsertError } = await supabase
+      .from('volunteer_profiles')
+      .insert({
+        user_id: adminUserId,
+        first_name: validatedData.firstName,
+        last_name: validatedData.lastName,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+
+    if (profileInsertError) {
+      console.error('❌ Failed to create volunteer profile:', profileInsertError)
+      // Still continue since the user was created
+    } else {
+      console.log('✅ Volunteer profile created successfully')
+    }
 
     // Send invitation email with credentials
     console.log('📧 Sending invitation email...')
